@@ -1,6 +1,7 @@
 <?php
-//appeler toute mes fichier 
-require_once __DIR__ .'/models/customer.php';
+// ====================================================
+// Chargement des fichiers modèles et services
+// ====================================================
 require_once __DIR__ .'/models/product.php';
 require_once __DIR__ . '/models/order.php';
 require_once __DIR__ . '/models/shipping_zone.php';
@@ -12,6 +13,8 @@ require_once __DIR__ .'/Loaders/OrderLoader.php';
 require_once __DIR__ .'/Loaders/ShippingZoneLoader.php';
 require_once __DIR__ .'/Loaders/PromotionLoader.php';
 
+require_once __DIR__ . '/Services/OrderCalculator.php';
+
 
 
 use Loaders\CustomerLoader;
@@ -19,9 +22,9 @@ use Loaders\ProductLoader;
 use Loaders\OrderLoader;
 use Loaders\ShippingZoneLoader;
 use Loaders\PromotionLoader;
+use Services\OrderCalculator;
 
-
-// Chemins des CSV
+// Définition des chemins vers les fichiers CSV
 $base = __DIR__ . '/../legacy/data/';
 $customersCsv = $base . 'customers.csv';
 $productsCsv = $base . 'products.csv';
@@ -29,14 +32,14 @@ $ordersCsv = $base . 'orders.csv';
 $shippingZonesCsv = $base . 'shipping_zones.csv';
 $promotionsCsv = $base . 'promotions.csv';
 
-// Chargement des données
+// Chargement des données depuis les CSV via les Loaders
 $customers = CustomerLoader::load($customersCsv);
 $products = ProductLoader::load($productsCsv);
 $orders = OrderLoader::load($ordersCsv);
 $shippingZones = ShippingZoneLoader::load($shippingZonesCsv);
 $promotions = PromotionLoader::load($promotionsCsv);
 
-// Test : afficher les clients
+// ///////////Tests d’affichage pour vérifier les données chargées
 echo "=== Customers ===\n";
 foreach ($customers as $c) {
     echo sprintf("%s: %s, Level: %s, Zone: %s, Currency: %s\n",
@@ -98,3 +101,26 @@ foreach ($promotions as $p) {
 echo "\n";
 
 echo "=== Test terminé ✅ ===\n";
+
+///////////////////////////////////ICI  Isoler les opérations d’entrée/sortie////////////////////
+
+// Ici, on ne fait que de l’I/O : affichage console
+foreach ($customers as $customer) {
+    $custOrders = array_filter($orders, fn($o) => $o->getCustomerId() === $customer->getId());
+
+    $totals = OrderCalculator::calculateTotals(
+        $customer,
+        $custOrders,
+        $products,
+        $shippingZones,
+        $promotions
+    );
+
+    echo sprintf(
+        "%s (%s) | Subtotal: %.2f | Loyalty Points: %d\n",
+        $customer->getName(),
+        $customer->getId(),
+        $totals['subtotal'],
+        $totals['loyaltyPoints']
+    );
+}
