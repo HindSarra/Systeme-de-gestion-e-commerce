@@ -2,9 +2,9 @@
 //appeler toute mes fichier 
 require_once __DIR__ .'/models/customer.php';
 require_once __DIR__ .'/models/product.php';
-require_once __DIR__ .'/models/order.php';
-require_once __DIR__ .'/models/shipping_zone.php';
-require_once __DIR__ .'/models/promotion.php';
+require_once __DIR__ . '/models/order.php';
+require_once __DIR__ . '/models/shipping_zone.php';
+require_once __DIR__ . '/models/promotion.php';
 
 require_once __DIR__ .'/Loaders/CustomerLoader.php';
 require_once __DIR__ .'/Loaders/ProductLoader.php';
@@ -95,3 +95,6 @@ foreach ($promotions as $p) {
         $p->isActive() ? 'Yes' : 'No'
     );
 }
+echo "\n";
+
+echo "=== Test terminé ✅ ===\n";
